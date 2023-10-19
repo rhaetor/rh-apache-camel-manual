@@ -1,0 +1,29 @@
+---
+name: Zip Contents
+run-name: ${{ github.actor }} zip the contents
+on:
+  - push
+      branches:
+          - '!main'   # excludes main
+jobs:
+  Zip-contents:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Branch name
+        run: echo "short_ref=${GITHUB_REF#refs/*/}" >> "$GITHUB_ENV"
+      - name: Checking out ${{ github.ref }}
+        uses: actions/checkout@v3
+      - run: echo "checked out ${{ steps.vars.outputs.short_ref }} "
+      - name: File list
+        run: |
+          ls ${{ github.workspace }}
+      - name: Store the zip
+        uses: actions/upload-artifact@v3
+        with:
+          name: apache-camel-reference-${{ env.short_ref }}
+          path: |
+            ./*
+            !git.sh
+            !.*
+          retention-days: 1
+      - run: echo "🍏 Done with result ${{ job.status }}."
